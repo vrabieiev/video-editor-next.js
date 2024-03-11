@@ -42,10 +42,6 @@ export default async function handler(
     const { bio, creatorName } = req.body;
 
     try {
-      // Process the bio and creatorName as needed
-      console.log("Received bio:", bio);
-      console.log("Received creatorName:", creatorName);
-
       const biowords = bio.split(" ");
       let bio1 = "";
       let bio2 = "";
@@ -75,9 +71,9 @@ export default async function handler(
         console.log("Rendering");
         const frames = fs.readdirSync(inputFolder);
 
-        for (let frameCount = 1; frameCount <= frames.length; frameCount++) {
+        for (let frameCount = 1; frameCount <= 120; frameCount++) {
           // Check and log progress
-          checkProgress(frameCount, frames.length);
+          checkProgress(frameCount, 120);
 
           // Read the current frame
           let frame = await Jimp.read(`${inputFolder}/${frameCount}.png`);
@@ -91,15 +87,15 @@ export default async function handler(
               bio1,
               bio2
             );
+            await frame.writeAsync(`${inputFolder}/${frameCount}.png`);
 
           // Save the frame
-          await frame.writeAsync(`${outputFolder}/${frameCount}.png`);
         }
 
         // Encode video from PNG frames to MP4 (no audio)
         console.log("Encoding");
         await exec(
-          `"${pathToFfmpeg}" -start_number 1 -i ${outputFolder}/%d.png -vcodec ${videoEncoder} -pix_fmt yuv420p editorspace/temp/no-audio.mp4`
+          `"${pathToFfmpeg}" -start_number 1 -i ${inputFolder}/%d.png -vcodec ${videoEncoder} -pix_fmt yuv420p editorspace/temp/no-audio.mp4`
         );
 
         // Copy audio from original video
@@ -120,6 +116,9 @@ export default async function handler(
         // Remove temp folder
         console.log("Cleaning up");
         await fs.remove("editorspace/temp");
+        await fs.remove("editorspace/rawvideo.mp4");
+        await fs.remove("editorspace/creator.jpg");
+        await fs.remove("editorspace/expeerly-logo.png");
 
         res.status(500).json({
           status: 500,

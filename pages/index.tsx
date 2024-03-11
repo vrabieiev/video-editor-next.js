@@ -71,48 +71,50 @@ const Home: NextPage = () => {
       );
       setSelectedLogoImage(logoImageURL);
       // Do some stuff on successfully upload
+      setTimeout(async () => {
+        const response = await axios.post(
+          "/api/process",
+          {
+            bio: bio,
+            creatorName: creatorName,
+          },
+          {
+            timeout: 0, // Setting timeout to 0 disables it
+          }
+        );
 
-      const response = await axios.post(
-        "/api/process",
-        {
-          bio: bio,
-          creatorName: creatorName,
-        },
-        {
-          timeout: 0, // Setting timeout to 0 disables it
+        if (response.data.status == 200) {
+          alert("success");
+          try {
+            const response = await fetch("/api/download");
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "edited_video.mp4";
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+          } catch (error) {
+            console.error("Error downloading file:", error);
+          }
+        } else {
+          alert("failed");
         }
-      );
-
-      if (response.data.status == 200) {
-        alert("success");
-        try {
-          const response = await fetch("/api/download");
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = "edited_video.mp4";
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-        } catch (error) {
-          console.error("Error downloading file:", error);
-        }
-      } else {
-        alert("failed");
-      }
+        setIsLoading(false);
+      }, 5000);
     } else {
       // Do some stuff on error
       setSelectedVideo(null);
       setSelectedCreatorImage(null);
       setSelectedLogoImage(null);
+      setIsLoading(false);
     }
 
     inputVideoFileRef.current.value = "";
     creatorImageFileRef.current.value = "";
     logoImageFileRef.current.value = "";
 
-    setIsLoading(false);
   };
 
   return (
