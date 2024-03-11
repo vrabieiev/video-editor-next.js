@@ -199,7 +199,7 @@ const Home: NextPage = () => {
       <div>
         <input
           type="submit"
-          value="Upload"
+          value="RUN"
           disabled={isLoading}
           onClick={handleOnRunButtonClick}
         />
