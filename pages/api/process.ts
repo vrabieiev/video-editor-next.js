@@ -95,7 +95,7 @@ export default async function handler(
         // Encode video from PNG frames to MP4 (no audio)
         console.log("Encoding");
         await exec(
-          `"${pathToFfmpeg}" -start_number 1 -i ${inputFolder}/%d.png -vcodec ${videoEncoder} -pix_fmt yuv420p editorspace/temp/no-audio.mp4`
+          `"${pathToFfmpeg}" -framerate 30 -start_number 1 -i ${inputFolder}/%d.png -vcodec ${videoEncoder} -pix_fmt yuv420p editorspace/temp/no-audio.mp4`
         );
 
         // Copy audio from original video
